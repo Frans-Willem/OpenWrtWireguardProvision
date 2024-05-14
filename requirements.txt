@@ -1,0 +1,2 @@
+openwrt-ubus-rpc
+qrcode
