@@ -5,6 +5,7 @@ import re
 import subprocess
 import os
 import pprint
+import qrcode
 
 def get_default_gateway():
     import socket, struct
@@ -79,6 +80,13 @@ def write_config_file(filename, address, private_key, peers):
             f.write("AllowedIPs = " + ", ".join([str(x) for x in peer["allowed_ips"]]) + "\n")
             f.write("Endpoint = " + ":".join([str(x) for x in peer["endpoint"]]) + "\n")
             f.write("PersistentKeepAlive = " + str(peer["persistent_keepalive"]) + "\n")
+
+def generate_qr(config_filename, qr_filename):
+    with open(config_filename, "r") as f:
+        data = f.read()
+    img = qrcode.make(data)
+    img.save(qr_filename)
+
 
 def main(openwrt = None, username="root", password="", external_address=None, wg_interface=None, description="New peer", conf_filename=None, persistent_keepalive=0, wg_address=None, add_lan_routes=False, add_peer_routes=False, replace=False, dry_run=False):
     # Set up defaults
@@ -170,6 +178,8 @@ def main(openwrt = None, username="root", password="", external_address=None, wg
 
     # Write out configuration file
     write_config_file(conf_filename, wg_address, private_key, [{"public_key": server_public_key, "preshared_key": preshared_key, "allowed_ips": server_allowed_ips, "endpoint": [external_address, wireguard_config["listen_port"]], "persistent_keepalive": persistent_keepalive}])
+
+    generate_qr(conf_filename, conf_filename+".png")
 
     if not dry_run:
         # Add or update section configuration
