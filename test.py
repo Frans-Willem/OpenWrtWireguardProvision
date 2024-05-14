@@ -180,13 +180,10 @@ def main(openwrt = None, username="root", password="", external_address=None, wg
             "public_key": public_key,
             "route_allowed_ips": "1"
         }
-        pprint.pp(section_values)
         if replace is None:
             response = ubus.api_call("call", "uci", "add", {"config": "network", "type": "wireguard_" + wg_interface, "values": section_values})
         else:
-            print("Replace", replace)
             response = ubus.api_call("call", "uci", "set", {"config": "network", "section": replace, "values": section_values})
-            pprint.pp(response)
         print("UCI add/set response:", response)
 
         response=ubus.api_call("call","uci","changes", {})
@@ -197,9 +194,7 @@ def main(openwrt = None, username="root", password="", external_address=None, wg
         print("UCI apply response:", response)
 
         response = ubus.api_call("call", "file", "exec", {"command": "/sbin/ifup", "env": None, "params":[ wg_interface ]})
-        print("Ifup reload", response)
-
-
+        print("Ifup response", response)
 
     return 0
 
